@@ -27,7 +27,7 @@ Each Membership Level in Wishlist relates to two tags that you will create manua
 
 = How do I get a License Key? =
 
-Please visit this URL <a href="http://app.itmooti.com/wp-plugins/ontraport-wishlist-plugin/license/">http://app.itmooti.com/wp-pluginsontraport-wishlist-plugin/license/</a> to get a License Key .
+Please visit this URL <a href="http://app.itmooti.com/wp-plugins/ontraport-wishlist-plugin/license/">http://app.itmooti.com/wp-plugins/ontraport-wishlist-integration/license/</a> to get a License Key .
 
 = Does it work for Office Autopilot and Ontraport? =
 
