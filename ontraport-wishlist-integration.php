@@ -39,8 +39,7 @@ class ontraportWishlistHelper {
 			$this->plugin_links=$response->message;
 		}
 		else{
-			$this->plugin_links->support_link="";
-			$this->plugin_links->license_link="";
+			$this->plugin_links=(object)array("support_link"=>"", "license_link"=>"");
 		}
 		add_action( 'admin_notices', array( $this, 'show_license_info' ) );
 		add_action('admin_menu', array($this, 'plugin_admin_add_page'));
