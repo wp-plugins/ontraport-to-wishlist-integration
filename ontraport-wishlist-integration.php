@@ -62,10 +62,14 @@ class ontraportWishlistHelper {
 				if(isset($response->message))
 					add_option("ontraport-wishlist-helper_message", $response->message) or update_option("ontraport-wishlist-helper_message", $response->message);
 				$this->License["authenticated"]=true;
+				//Modified by Shirish - 14Mar15, WishlistMember class will not exist until plugins are loaded
+				add_action('plugins_loaded', array($this,'init_wl_functions'),10);
+				/*
 				if( class_exists('WishListMember')){
 					add_shortcode( 'user_load', array($this, 'pp_load_user_session') );
 					add_action('plugins_loaded', array($this, 'oa_wl_calls',10));
 				}
+				*/
 			}
 			else{
 				$this->License["authenticated"]=false;
@@ -78,7 +82,14 @@ class ontraportWishlistHelper {
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this, 'itmooti_plugin_action_link'));
 		add_filter( 'plugin_row_meta', array($this, 'itmooti_plugin_meta_link'), 10, 2);
 	}
-	
+	function init_wl_functions()
+	{
+		if( class_exists('WishListMember'))
+		{
+			$this->pp_load_user_session();
+			$this->oa_wl_calls();
+		}	
+	}
 	function itmooti_plugin_action_link( $links ) {
 		return array_merge(
 			array(
@@ -375,7 +386,7 @@ class ontraportWishlistHelper {
 				}
 			}
 	
-			exit;
+			//exit;
 		}
 	}
 		
