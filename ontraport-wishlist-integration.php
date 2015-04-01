@@ -3,7 +3,7 @@
 Plugin Name: ONTRAPORT to Wishlist Member Integration
 Plugin URI: http://www.itmooti.com
 Description: Plugin to integrate ONTRAPORT with the Wishlist Member plugin by creating users in Wordpress based on tags being added or removed in ONTRAPORT relating to the Membership Levels.
-Version: 1.2
+Version: 1.3
 Author: ITMOOTI
 Author URI: http://www.itmooti.com
 */
