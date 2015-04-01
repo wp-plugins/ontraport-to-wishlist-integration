@@ -3,7 +3,7 @@
 Plugin Name: ONTRAPORT to Wishlist Member Integration
 Plugin URI: http://www.itmooti.com
 Description: Plugin to integrate ONTRAPORT with the Wishlist Member plugin by creating users in Wordpress based on tags being added or removed in ONTRAPORT relating to the Membership Levels.
-Version: 1.2
+Version: 1.4
 Author: ITMOOTI
 Author URI: http://www.itmooti.com
 */
@@ -33,6 +33,8 @@ class ontraportWishlistHelper {
 		curl_setopt($session, CURLOPT_HEADER, false);
 		curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
+		curl_setopt($session, CURLOPT_TIMEOUT, 3);
 		$response = json_decode(curl_exec($session));
 		curl_close($session);
 		if(isset($response->status) && $response->status=="success"){
@@ -56,6 +58,8 @@ class ontraportWishlistHelper {
 			curl_setopt($session, CURLOPT_HEADER, false);
 			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
+			curl_setopt($session, CURLOPT_TIMEOUT, 3);
 			$response = json_decode(curl_exec($session));
 			curl_close($session);
 			if(isset($response->status) && $response->status=="success"){
@@ -140,6 +144,8 @@ class ontraportWishlistHelper {
 		curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
 		curl_setopt ($session, CURLOPT_HEADER, false);
 		curl_setopt ($session, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
+		curl_setopt($session, CURLOPT_TIMEOUT, 10);
 		$response = curl_exec($session);
 		curl_close($session);
 		$result = simplexml_load_string($response);
