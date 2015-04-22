@@ -3,7 +3,7 @@
 Plugin Name: ONTRAPORT to Wishlist Member Integration
 Plugin URI: http://www.itmooti.com
 Description: Plugin to integrate ONTRAPORT with the Wishlist Member plugin by creating users in Wordpress based on tags being added or removed in ONTRAPORT relating to the Membership Levels.
-Version: 1.4
+Version: 1.5
 Author: ITMOOTI
 Author URI: http://www.itmooti.com
 */
@@ -24,7 +24,7 @@ class ontraportWishlistHelper {
 		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
 			$isSecure = true;
 		}
-		$this->url=($isSecure ? 'http' : 'http')."://app.itmooti.com/wp-plugins/oap-utm/api.php";
+		$this->url=($isSecure ? 'https' : 'http')."://app.itmooti.com/wp-plugins/oap-utm/api.php";
 		$request= "plugin_links";
 		$postargs = "plugin=ontraport-wishlist-helper&request=".urlencode($request);
 		$session = curl_init($this->url);
@@ -33,8 +33,6 @@ class ontraportWishlistHelper {
 		curl_setopt($session, CURLOPT_HEADER, false);
 		curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
-		curl_setopt($session, CURLOPT_TIMEOUT, 3);
 		$response = json_decode(curl_exec($session));
 		curl_close($session);
 		if(isset($response->status) && $response->status=="success"){
@@ -58,8 +56,6 @@ class ontraportWishlistHelper {
 			curl_setopt($session, CURLOPT_HEADER, false);
 			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
-			curl_setopt($session, CURLOPT_TIMEOUT, 3);
 			$response = json_decode(curl_exec($session));
 			curl_close($session);
 			if(isset($response->status) && $response->status=="success"){
@@ -88,11 +84,64 @@ class ontraportWishlistHelper {
 	}
 	function init_wl_functions()
 	{
-		if( class_exists('WishListMember'))
+		
+		if(class_exists('WishListMember'))
 		{
 			$this->pp_load_user_session();
 			$this->oa_wl_calls();
-		}	
+			//$this->create_wl_login_date_field('WL_HELPER');
+			add_action('wp_login', array($this,'wl_on_login'),5);
+		}
+	}
+	function wl_on_login($login)
+	{
+		$user=get_user_by('login',$login);
+		$email=$user->user_email;
+		$section_arr = get_option('wlhelper_oap_wlpwdsection');
+		$oap_section=$section_arr['text_string'];
+		$this->create_wl_login_date_field($oap_section);
+		
+		$opid =  $this->oap_get_id($email);
+		/*
+		echo $opid;
+		exit();
+		*/
+		$this->update_last_login_date($opid,$oap_section);
+		$this->add_login_tag($opid);
+		
+	}
+	function add_login_tag($opid)
+	{
+		$domain_name =  preg_replace('/^www\./','',$_SERVER['SERVER_NAME']);
+		$this->request('cdata','add_tag', 
+			"<contact id='{$opid}'>
+				<tag>WL > ".$domain_name." - Active</tag>
+			</contact>"
+		);
+		
+	}
+	function update_last_login_date($opid,$oap_section)
+	{
+		$this->request('cdata','update', 
+			"<contact id='{$opid}'>
+				<Group_Tag name='{$oap_section}'>
+				<field name='WL Last Login Date'>".time()."</field>
+				</Group_Tag>
+			</contact>"
+		);
+		
+	}
+	function create_wl_login_date_field($oap_section)
+	{
+		$status = wp_mail("spectrainfo@gmail.com","Creating Date Field:","Date passed:".$mstr);
+		$mresult=$this->request('cdata','edit_section', 
+			'<data>
+			<Group_Tag name="'.$oap_section.'">
+			<field name="WL Last Login Date" type="fulldate"/>
+			</Group_Tag>
+			</data>'
+		);
+		
 	}
 	function itmooti_plugin_action_link( $links ) {
 		return array_merge(
@@ -144,8 +193,6 @@ class ontraportWishlistHelper {
 		curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
 		curl_setopt ($session, CURLOPT_HEADER, false);
 		curl_setopt ($session, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
-		curl_setopt($session, CURLOPT_TIMEOUT, 10);
 		$response = curl_exec($session);
 		curl_close($session);
 		$result = simplexml_load_string($response);
