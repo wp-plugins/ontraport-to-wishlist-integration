@@ -4,7 +4,7 @@ Donate link: https://www.itmooti.com/ontraport-to-wishlist-plugin/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 4.2.0
-Stable tag: 1.5
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,10 @@ https://itmooti.zendesk.com/hc/en-us/sections/200755410
 Nothing yet.
 
 == Changelog ==
+
+= 1.6 = 
+
+Minor update to remove redundant text in script
 
 = 1.5 =
 

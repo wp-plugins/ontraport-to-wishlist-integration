@@ -3,7 +3,7 @@
 Plugin Name: ONTRAPORT to Wishlist Member Integration
 Plugin URI: http://www.itmooti.com
 Description: Plugin to integrate ONTRAPORT with the Wishlist Member plugin by creating users in Wordpress based on tags being added or removed in ONTRAPORT relating to the Membership Levels.
-Version: 1.5
+Version: 1.6
 Author: ITMOOTI
 Author URI: http://www.itmooti.com
 */
@@ -62,7 +62,7 @@ class ontraportWishlistHelper {
 				if(isset($response->message))
 					add_option("ontraport-wishlist-helper_message", $response->message) or update_option("ontraport-wishlist-helper_message", $response->message);
 				$this->License["authenticated"]=true;
-				//Modified by Shirish - 14Mar15, WishlistMember class will not exist until plugins are loaded
+				//Modified by IT Mooti - 14Mar15, WishlistMember class will not exist until plugins are loaded
 				add_action('plugins_loaded', array($this,'init_wl_functions'),10);
 				/*
 				if( class_exists('WishListMember')){
@@ -133,7 +133,7 @@ class ontraportWishlistHelper {
 	}
 	function create_wl_login_date_field($oap_section)
 	{
-		$status = wp_mail("spectrainfo@gmail.com","Creating Date Field:","Date passed:".$mstr);
+		//$status = wp_mail("spectrainfo@gmail.com","Creating Date Field:","Date passed:".$mstr);
 		$mresult=$this->request('cdata','edit_section', 
 			'<data>
 			<Group_Tag name="'.$oap_section.'">
