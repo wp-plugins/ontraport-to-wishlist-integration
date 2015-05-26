@@ -3,8 +3,8 @@ Contributors: itmooti
 Donate link: https://www.itmooti.com/ontraport-to-wishlist-plugin/
 Tags: comments, spam
 Requires at least: 3.0.1
-Tested up to: 4.2.0
-Stable tag: 1.6
+Tested up to: 4.2.2
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,10 @@ https://itmooti.zendesk.com/hc/en-us/sections/200755410
 Nothing yet.
 
 == Changelog ==
+
+= 1.7 = 
+
+Update to be compatible with 4.2.2 and resolve SSL issue
 
 = 1.6 = 
 

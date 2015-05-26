@@ -24,7 +24,7 @@ class ontraportWishlistHelper {
 		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
 			$isSecure = true;
 		}
-		$this->url=($isSecure ? 'https' : 'http')."://app.itmooti.com/wp-plugins/oap-utm/api.php";
+		$this->url=($isSecure ? 'http' : 'http')."://app.itmooti.com/wp-plugins/oap-utm/api.php";
 		$request= "plugin_links";
 		$postargs = "plugin=ontraport-wishlist-helper&request=".urlencode($request);
 		$session = curl_init($this->url);
@@ -33,6 +33,8 @@ class ontraportWishlistHelper {
 		curl_setopt($session, CURLOPT_HEADER, false);
 		curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
+		curl_setopt($session, CURLOPT_TIMEOUT, 3);
 		$response = json_decode(curl_exec($session));
 		curl_close($session);
 		if(isset($response->status) && $response->status=="success"){
@@ -56,6 +58,8 @@ class ontraportWishlistHelper {
 			curl_setopt($session, CURLOPT_HEADER, false);
 			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
+			curl_setopt($session, CURLOPT_TIMEOUT, 3);
 			$response = json_decode(curl_exec($session));
 			curl_close($session);
 			if(isset($response->status) && $response->status=="success"){
@@ -76,7 +80,7 @@ class ontraportWishlistHelper {
 				if(isset($response->message))
 					$this->License["message"]=$response->message;
 				else
-					$this->License["message"]="Error in license key verification. Try again later";
+					$this->License["message"]="Error in license key verification. Try again later.";
 			}
 		}
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this, 'itmooti_plugin_action_link'));
