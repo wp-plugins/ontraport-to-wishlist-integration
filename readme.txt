@@ -4,7 +4,7 @@ Donate link: https://www.itmooti.com/ontraport-to-wishlist-plugin/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 4.2.2
-Stable tag: 1.7
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,10 @@ https://itmooti.zendesk.com/hc/en-us/sections/200755410
 Nothing yet.
 
 == Changelog ==
+
+= 1.8 = 
+
+Removed license check on page load. License now checked twice daily.
 
 = 1.7 = 
 

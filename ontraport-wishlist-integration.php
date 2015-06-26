@@ -3,7 +3,7 @@
 Plugin Name: ONTRAPORT to Wishlist Member Integration
 Plugin URI: http://www.itmooti.com
 Description: Plugin to integrate ONTRAPORT with the Wishlist Member plugin by creating users in Wordpress based on tags being added or removed in ONTRAPORT relating to the Membership Levels.
-Version: 1.7
+Version: 1.8
 Author: ITMOOTI
 Author URI: http://www.itmooti.com
 */
@@ -17,6 +17,45 @@ class ontraportWishlistHelper {
 		"message" => ""
 	);
 	public function __construct(){
+		$this->plugin_links=(object)array("support_link"=>get_option("ontraport-wishlist-helper_plugin_link_support_link", ""), "license_link"=>get_option("ontraport-wishlist-helper_plugin_link_license_link", ""));
+		register_activation_hook(__FILE__, array($this, 'plugin_activation'));
+		add_action('plugin_scheduled_event', array($this, 'plugin_authentication'));
+		register_deactivation_hook(__FILE__, array($this, 'plugin_deactivation'));
+		add_action( 'admin_notices', array( $this, 'show_license_info' ) );
+		add_action('admin_menu', array($this, 'plugin_admin_add_page'));
+		add_action('admin_init', array($this, 'plugin_admin_init'));
+		if(isset($_POST["ontraportWishlistHelper_license_key"])){
+			add_option("ontraportWishlistHelper_license_key", $_POST["ontraportWishlistHelper_license_key"]) or update_option("ontraportWishlistHelper_license_key", $_POST["ontraportWishlistHelper_license_key"]);
+			$this->plugin_authentication();
+		}
+		if($this->is_authenticated()){
+			add_option("ontraport-wishlist-helper_message", $response->message) or update_option("ontraport-wishlist-helper_message", $response->message);
+			$this->License["authenticated"]=true;
+			//Modified by IT Mooti - 14Mar15, WishlistMember class will not exist until plugins are loaded
+			add_action('plugins_loaded', array($this,'init_wl_functions'),10);
+			/*
+			if( class_exists('WishListMember')){
+				add_shortcode( 'user_load', array($this, 'pp_load_user_session') );
+				add_action('plugins_loaded', array($this, 'oa_wl_calls',10));
+			}
+			*/
+		}
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this, 'itmooti_plugin_action_link'));
+		add_filter( 'plugin_row_meta', array($this, 'itmooti_plugin_meta_link'), 10, 2);
+	}
+	public function is_authenticated(){
+		if(get_option("ontraport-wishlist-helper_plugin_authenticated", "no")=="yes")
+			return true;
+		else
+			return false;
+	}
+	public function plugin_activation(){
+		wp_schedule_event(time(), 'twicedaily', 'plugin_scheduled_event');
+	}
+	public function plugin_deactivation(){
+		wp_clear_scheduled_hook('plugin_scheduled_event');
+	}
+	public function plugin_authentication(){
 		$isSecure = false;
 		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 			$isSecure = true;
@@ -38,16 +77,9 @@ class ontraportWishlistHelper {
 		$response = json_decode(curl_exec($session));
 		curl_close($session);
 		if(isset($response->status) && $response->status=="success"){
-			$this->plugin_links=$response->message;
+			update_option("ontraport-wishlist-helper_plugin_link_support_link", $response->message->support_link);
+			update_option("ontraport-wishlist-helper_plugin_link_license_link", $response->message->license_link);
 		}
-		else{
-			$this->plugin_links=(object)array("support_link"=>"", "license_link"=>"");
-		}
-		add_action( 'admin_notices', array( $this, 'show_license_info' ) );
-		add_action('admin_menu', array($this, 'plugin_admin_add_page'));
-		add_action('admin_init', array($this, 'plugin_admin_init'));
-		if(isset($_POST["ontraportWishlistHelper_license_key"]))
-			add_option("ontraportWishlistHelper_license_key", $_POST["ontraportWishlistHelper_license_key"]) or update_option("ontraportWishlistHelper_license_key", $_POST["ontraportWishlistHelper_license_key"]);
 		$license_key=get_option('ontraportWishlistHelper_license_key', "");
 		if(!empty($license_key)){
 			$request= "verify";
@@ -57,34 +89,25 @@ class ontraportWishlistHelper {
 			curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
 			curl_setopt($session, CURLOPT_HEADER, false);
 			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($session, CURLOPT_CONNECTTIMEOUT ,3); 
 			curl_setopt($session, CURLOPT_TIMEOUT, 3);
 			$response = json_decode(curl_exec($session));
 			curl_close($session);
 			if(isset($response->status) && $response->status=="success"){
+				update_option("ontraport-wishlist-helper_plugin_authenticated", "yes");
 				if(isset($response->message))
-					add_option("ontraport-wishlist-helper_message", $response->message) or update_option("ontraport-wishlist-helper_message", $response->message);
-				$this->License["authenticated"]=true;
-				//Modified by IT Mooti - 14Mar15, WishlistMember class will not exist until plugins are loaded
-				add_action('plugins_loaded', array($this,'init_wl_functions'),10);
-				/*
-				if( class_exists('WishListMember')){
-					add_shortcode( 'user_load', array($this, 'pp_load_user_session') );
-					add_action('plugins_loaded', array($this, 'oa_wl_calls',10));
-				}
-				*/
+					update_option("ontraport-wishlist-helper_message", $response->message);
 			}
-			else{
-				$this->License["authenticated"]=false;
+			else if(isset($response->status) && $response->status=="error"){
+				update_option("ontraport-wishlist-helper_plugin_authenticated", "no");
 				if(isset($response->message))
-					$this->License["message"]=$response->message;
-				else
-					$this->License["message"]="Error in license key verification. Try again later.";
+					update_option("ontraport-wishlist-helper_message", $response->message);
 			}
 		}
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this, 'itmooti_plugin_action_link'));
-		add_filter( 'plugin_row_meta', array($this, 'itmooti_plugin_meta_link'), 10, 2);
+		else{
+			update_option("ontraport-wishlist-helper_plugin_authenticated", "no");
+			update_option("ontraport-wishlist-helper_message", "Please enter valid license key");
+		}
 	}
 	function init_wl_functions()
 	{
@@ -466,13 +489,13 @@ class ontraportWishlistHelper {
                    	</tr>
               	</table>
 				<?php
-				echo $this->License["message"];
-				settings_fields('wlhelper_options');
-				if($this->License["authenticated"]){
-					do_settings_sections('wlhelpersettings');
+				$message=get_option("ontraport-wishlist-helper_message", "");
+				if($message!=""){
+					echo $message;
 				}
-				if(!empty($license_key)){
-					
+				settings_fields('wlhelper_options');
+				if($this->is_authenticated()){
+					do_settings_sections('wlhelpersettings');
 				}
 				submit_button();
 				?>
